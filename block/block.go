@@ -1,11 +1,12 @@
 package block
 
 import (
-	"time"
 	"crypto/sha256"
 	"encoding/binary"
-	"github.com/lnquy/bc"
 	"fmt"
+	"time"
+
+	"github.com/lnquy/bc/config"
 )
 
 type Block struct {
@@ -25,7 +26,7 @@ func (b *Block) String() string {
 func GenesisBlock() *Block {
 	gb := &Block{
 		ID:           0,
-		Timestamp:    uint64(time.Now().Unix()),
+		Timestamp:    1529280000, // 2018-05-18T00:00:00
 		PreviousHash: []byte{},
 		Nonce:        0,
 		Hash:         []byte{},
@@ -49,13 +50,14 @@ func NewBlock(latestID uint64, prevHash []byte, data []byte) *Block {
 
 func mineBlock(block *Block) {
 	for {
-		h := sha256.Sum256(getRawBlock(block))
+		b := sha256.Sum256(getRawBlock(block))
+		h := b[:]
 		if !isValidHash(h) {
 			block.Nonce++
 			continue
 		}
 
-		block.Hash = h[:]
+		block.Hash = h
 		return
 	}
 }
@@ -82,19 +84,25 @@ func getRawBlock(block *Block) []byte {
 	return d
 }
 
-func isValidHash(hash [32]byte) bool {
+func isValidHash(hash []byte) bool {
 	zeros := 0
 	for _, b := range hash {
-		if b&0x0F != 0x00 {
+		if b&0x0F != 0 {
 			goto exit
 		}
 		zeros++
-		if b&0xF0 != 0x00 {
+		if b&0xF0 != 0 {
 			goto exit
 		}
 		zeros++
 	}
 
 exit:
-	return zeros >= bc.BLOCKCHAIN_POW_DIFFICULTY
+	return zeros >= config.BLOCKCHAIN_POW_DIFFICULTY
 }
+
+type ByID []*Block
+
+func (s ByID) Len() int           { return len(s) }
+func (s ByID) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s ByID) Less(i, j int) bool { return s[i].ID < s[j].ID }
