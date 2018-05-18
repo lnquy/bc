@@ -1,6 +1,6 @@
-package storage
+package ledger
 
-import "github.com/lnquy/bc/block"
+import "github.com/lnquy/blockchain/block"
 
 type Ledger interface {
 	AddBlock(*block.Block) (uint64, error)

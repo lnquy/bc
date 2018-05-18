@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lnquy/bc/config"
+	"github.com/lnquy/blockchain/config"
 )
 
 type Block struct {

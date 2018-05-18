@@ -5,15 +5,15 @@ import (
 	"fmt"
 
 	"github.com/allegro/bigcache"
-	"github.com/lnquy/bc/block"
-	"github.com/lnquy/bc/storage"
+	"github.com/lnquy/blockchain/block"
+	"github.com/lnquy/blockchain/ledger"
 )
 
 type cache struct {
 	bigCache *bigcache.BigCache
 }
 
-func NewCache() (storage.Ledger, error) {
+func NewCache() (ledger.Ledger, error) {
 	bc, err := bigcache.NewBigCache(bigcache.DefaultConfig(0))
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *cache) GetLatestBlock() (*block.Block, error) {
 	if c.bigCache.Len() <= 0 {
 		return nil, fmt.Errorf("the blockchain is empty")
 	}
-	b, err := c.bigCache.Get(fmt.Sprintf("%d", c.bigCache.Len() - 1))
+	b, err := c.bigCache.Get(fmt.Sprintf("%d", c.bigCache.Len()-1))
 	if err != nil {
 		return nil, err
 	}
@@ -79,10 +79,10 @@ func (c *cache) Dump() ([]*block.Block, error) {
 func (c *cache) DumpFromID(id uint64) ([]*block.Block, error) {
 	chainLength := uint64(c.bigCache.Len())
 	if id >= chainLength {
-		return nil, fmt.Errorf("invalid id. Latest block ID is: %d", chainLength - 1)
+		return nil, fmt.Errorf("invalid id. Latest block ID is: %d", chainLength-1)
 	}
 
-	blocks := make([]*block.Block, chainLength - id)
+	blocks := make([]*block.Block, chainLength-id)
 	for i := id; i < chainLength; i++ {
 		bl, err := c.GetBlock(i)
 		if err != nil {

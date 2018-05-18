@@ -11,7 +11,7 @@ import (
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a block detail or list all blocks",
-	Long: ``,
+	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return getAllBlocks()
@@ -29,7 +29,7 @@ func init() {
 }
 
 func getBlockDetail(id uint64) error {
-	bl, err := ledger.GetBlock(id)
+	bl, err := glbLedger.GetBlock(id)
 	if err != nil {
 		return fmt.Errorf("failed to get block #%d: %s", id, err)
 	}
@@ -38,7 +38,7 @@ func getBlockDetail(id uint64) error {
 }
 
 func getAllBlocks() error {
-	blocks, err := ledger.Dump()
+	blocks, err := glbLedger.Dump()
 	if err != nil {
 		return fmt.Errorf("failed to get all blocks: %s", err)
 	}

@@ -4,11 +4,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/lnquy/bc/cmd/blockchain/cmd"
-	"github.com/lnquy/bc/config"
-	"github.com/lnquy/bc/storage"
-	"github.com/lnquy/bc/storage/bigcache"
-	"github.com/lnquy/bc/storage/leveldb"
+	"github.com/lnquy/blockchain/cmd/blockchain/cmd"
+	"github.com/lnquy/blockchain/config"
+	"github.com/lnquy/blockchain/ledger"
+	"github.com/lnquy/blockchain/ledger/bigcache"
+	"github.com/lnquy/blockchain/ledger/leveldb"
 )
 
 func main() {
@@ -17,22 +17,22 @@ func main() {
 		log.Fatalf("main: failed to load configuration: %s", err)
 	}
 
-	var ledger storage.Ledger
+	var myLedger ledger.Ledger
 	switch strings.ToLower(cfg.DBType) {
 	case "leveldb":
-		ledger, err = leveldb.NewStorage(cfg.LevelDB)
+		myLedger, err = leveldb.NewStorage(cfg.LevelDB)
 		if err != nil {
 			log.Fatalf("main: failed to init LevelDB storage: %s", err)
 		}
 	case "bigcache":
-		ledger, err = bigcache.NewCache()
+		myLedger, err = bigcache.NewCache()
 		if err != nil {
 			log.Fatalf("main: failed to init BigCache: %s", err)
 		}
 	default:
 		log.Fatalf("main: invalid database type: %s", cfg.DBType)
 	}
-	defer ledger.Close()
+	defer myLedger.Close()
 
-	cmd.Execute(cfg, ledger)
+	cmd.Execute(cfg, myLedger)
 }

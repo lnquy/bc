@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lnquy/bc/config"
-	"github.com/lnquy/bc/storage"
+	"github.com/lnquy/blockchain/config"
+	"github.com/lnquy/blockchain/ledger"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -20,13 +20,13 @@ var rootCmd = &cobra.Command{
 }
 
 var (
-	cfg    *config.Config
-	ledger storage.Ledger
+	glbConfig *config.Config
+	glbLedger ledger.Ledger
 )
 
-func Execute(cfgArg *config.Config, ledgerArg storage.Ledger) {
-	cfg = cfgArg
-	ledger = ledgerArg
+func Execute(cfgArg *config.Config, ledgerArg ledger.Ledger) {
+	glbConfig = cfgArg
+	glbLedger = ledgerArg
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

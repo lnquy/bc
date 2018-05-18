@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/lnquy/bc/block"
-	"github.com/lnquy/bc/config"
-	"github.com/lnquy/bc/storage"
+	"github.com/lnquy/blockchain/block"
+	"github.com/lnquy/blockchain/config"
+	"github.com/lnquy/blockchain/ledger"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
@@ -16,7 +16,7 @@ type lvlDBStorage struct {
 	db *leveldb.DB
 }
 
-func NewStorage(conf config.LevelDB) (storage.Ledger, error) {
+func NewStorage(conf config.LevelDB) (ledger.Ledger, error) {
 	db, err := leveldb.OpenFile(conf.DBFile, nil)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (l *lvlDBStorage) AddBlock(bl *block.Block) (uint64, error) {
 	return bl.ID, nil
 }
 
-func (l *lvlDBStorage)  GetBlock(id uint64) (*block.Block, error) {
+func (l *lvlDBStorage) GetBlock(id uint64) (*block.Block, error) {
 	b, err := l.db.Get(uint64ToBytes(id), nil)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (l *lvlDBStorage) GetLatestBlock() (*block.Block, error) {
 	if nuBlocks <= 0 {
 		return nil, fmt.Errorf("the blockchain is empty")
 	}
-	b, err := l.db.Get(uint64ToBytes(nuBlocks - 1), nil)
+	b, err := l.db.Get(uint64ToBytes(nuBlocks-1), nil)
 	if err != nil {
 		return nil, err
 	}
