@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/lnquy/blockchain/config"
@@ -21,6 +22,22 @@ type Block struct {
 func (b *Block) String() string {
 	return fmt.Sprintf("ID: %d\nTimestamp: %d\nPreviousHash: %x\nNonce: %d\nHash: %x\nData: %s\n",
 		b.ID, b.Timestamp, b.PreviousHash, b.Nonce, b.Hash, b.Data)
+}
+
+func (b *Block) IsValidBlock(prevBlock *Block) bool {
+	if b.ID != prevBlock.ID+1 {
+		return false
+	}
+	if !reflect.DeepEqual(b.PreviousHash, prevBlock.Hash) {
+		return false
+	}
+	if !reflect.DeepEqual(calcBlockHash(b), b.Hash) {
+		return false
+	}
+	if !isValidHash(b.Hash) {
+		return false
+	}
+	return true
 }
 
 func GenesisBlock() *Block {
@@ -50,8 +67,7 @@ func NewBlock(latestID uint64, prevHash []byte, data []byte) *Block {
 
 func mineBlock(block *Block) {
 	for {
-		b := sha256.Sum256(getRawBlock(block))
-		h := b[:]
+		h := calcBlockHash(block)
 		if !isValidHash(h) {
 			block.Nonce++
 			continue
@@ -60,6 +76,11 @@ func mineBlock(block *Block) {
 		block.Hash = h
 		return
 	}
+}
+
+func calcBlockHash(block *Block) []byte {
+	h := sha256.Sum256(getRawBlock(block))
+	return h[:]
 }
 
 // ID - Timestamp - PreviousHash - Nonce - Data
@@ -87,11 +108,11 @@ func getRawBlock(block *Block) []byte {
 func isValidHash(hash []byte) bool {
 	zeros := 0
 	for _, b := range hash {
-		if b&0x0F != 0 {
+		if b&0xF0 != 0 {
 			goto exit
 		}
 		zeros++
-		if b&0xF0 != 0 {
+		if b&0x0F != 0 {
 			goto exit
 		}
 		zeros++

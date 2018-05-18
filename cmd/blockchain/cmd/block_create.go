@@ -39,6 +39,9 @@ func createBlock(data string) error {
 	}
 
 	bl := block.NewBlock(latestBlock.ID, latestBlock.Hash, []byte(data))
+	if !bl.IsValidBlock(latestBlock) {
+		return fmt.Errorf("block is not valid.\n  > Previous block: %s\n  > Current block: %s", latestBlock, bl)
+	}
 	if _, err = glbLedger.AddBlock(bl); err != nil {
 		return fmt.Errorf("failed to create block: %s", err)
 	}
